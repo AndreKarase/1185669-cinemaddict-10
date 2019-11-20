@@ -1,7 +1,7 @@
 # Личный проект «Киноман» [![Build status][travis-image]][travis-url]
 
 * Студент: [Андрей](https://up.htmlacademy.ru/ecmascript/10/user/1185669).
-* Наставник: `Неизвестно`.
+* Наставник: `Михаил Еланцев`.
 
 ---
 
