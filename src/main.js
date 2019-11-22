@@ -275,11 +275,9 @@ render(siteMainElement, createBoardTemplate(), `beforeend`);
 
 const filmsListElement = siteMainElement.querySelector(`.films-list__container`);
 
-new Array(MOVIES_COUNT)
-  .fill(``)
-  .forEach(
-      () => render(filmsListElement, createFilmCardTemplate(), `beforeend`)
-  );
+for (let i = 0; i < MOVIES_COUNT; i++) {
+  render(filmsListElement, createFilmCardTemplate(), `beforeend`);
+}
 
 render(filmsListElement, createShowMoreButtonTemplate(), `afterend`);
 
@@ -287,17 +285,13 @@ const filmsListExtraElements = siteMainElement.querySelectorAll(`.films-list--ex
 const topRatedFilmsListElement = filmsListExtraElements[0].querySelector(`.films-list__container`);
 const mostCommentedFilmsListElement = filmsListExtraElements[1].querySelector(`.films-list__container`);
 
-new Array(TOP_MOVIES_COUNT)
-  .fill(``)
-  .forEach(
-      () => render(topRatedFilmsListElement, createFilmCardTemplate(), `beforeend`)
-  );
+for (let i = 0; i < TOP_MOVIES_COUNT; i++) {
+  render(topRatedFilmsListElement, createFilmCardTemplate(), `beforeend`);
+}
 
-new Array(TOP_MOVIES_COUNT)
-  .fill(``)
-  .forEach(
-      () => render(mostCommentedFilmsListElement, createFilmCardTemplate(), `beforeend`)
-  );
+for (let i = 0; i < TOP_MOVIES_COUNT; i++) {
+  render(mostCommentedFilmsListElement, createFilmCardTemplate(), `beforeend`);
+}
 
 render(document.body, createFilmDetailsTemplate(), `beforeend`);
 
