@@ -19,9 +19,9 @@ const render = (container, template, place) => {
 const siteHeaderElement = document.querySelector(`.header`);
 const siteMainElement = document.querySelector(`.main`);
 
-render(siteHeaderElement, createUserProfileTemplate(movieCount), `beforeend`);
-
 const movies = generateMovies(MOVIES_COUNT);
+render(siteHeaderElement, createUserProfileTemplate(movieCount(movies)), `beforeend`);
+
 const filters = generateFilters(movies);
 render(siteMainElement, createSiteMenuTemplate(filters), `beforeend`);
 render(siteMainElement, createBoardTemplate(), `beforeend`);
@@ -58,17 +58,24 @@ const filmsListExtraElements = siteMainElement.querySelectorAll(`.films-list--ex
 const topRatedFilmsListElement = filmsListExtraElements[0].querySelector(`.films-list__container`);
 const mostCommentedFilmsListElement = filmsListExtraElements[1].querySelector(`.films-list__container`);
 
-const topRatedMovies = movies[0].rating < movies[1].rating ? [movies[0], movies[1]] : [movies[1], movies[0]];
-movies.slice(2).forEach((movie) => {
-  if (movie.rating > topRatedMovies[0].rating) {
-    if (movie.rating > topRatedMovies[1].rating) {
-      topRatedMovies[0] = topRatedMovies[1];
-      topRatedMovies[1] = movie;
-    } else {
-      topRatedMovies[0] = movie;
+const getTopTwoItems = (arr, getDiff) => {
+  const top = getDiff(arr[0], arr[1]) < 0 ? [arr[0], arr[1]] : [arr[1], arr[0]];
+
+  for (let i = 2; i < arr.length; i++) {
+    if (getDiff(arr[i], top[0]) > 0) {
+      if (getDiff(arr[i], top[1]) > 0) {
+        top[0] = top[1];
+        top[1] = arr[i];
+      } else {
+        top[0] = arr[i];
+      }
     }
   }
-});
+
+  return top;
+};
+
+const topRatedMovies = getTopTwoItems(movies, (movieA, movieB) => movieA.rating - movieB.rating);
 
 if (topRatedMovies[1].rating !== 0) {
   topRatedMovies.forEach(
@@ -76,17 +83,7 @@ if (topRatedMovies[1].rating !== 0) {
   );
 }
 
-const mostCommentedMovies = movies[0].comments.length < movies[1].comments.length ? [movies[0], movies[1]] : [movies[1], movies[0]];
-movies.slice(2).forEach((movie) => {
-  if (movie.comments.length > mostCommentedMovies[0].comments.length) {
-    if (movie.comments.length > mostCommentedMovies[1].comments.length) {
-      mostCommentedMovies[0] = mostCommentedMovies[1];
-      mostCommentedMovies[1] = movie;
-    } else {
-      mostCommentedMovies[0] = movie;
-    }
-  }
-});
+const mostCommentedMovies = getTopTwoItems(movies, (movieA, movieB) => movieA.comments.length - movieB.comments.length);
 
 if (topRatedMovies[1].comments.length !== 0) {
   mostCommentedMovies.forEach(
