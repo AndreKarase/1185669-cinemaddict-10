@@ -1,3 +1,5 @@
+import {createElement} from '../util.js';
+
 const determimeLevel = (movieCount) => {
   if (movieCount <= 10) {
     return `Novice`;
@@ -9,7 +11,7 @@ const determimeLevel = (movieCount) => {
   return `Movie Buff`;
 };
 
-export const createUserProfileTemplate = (movieCount) => {
+const createUserProfileTemplate = (movieCount) => {
   const userLevel = determimeLevel(movieCount);
 
   return (
@@ -19,3 +21,26 @@ export const createUserProfileTemplate = (movieCount) => {
   </section>`
   );
 };
+
+export default class UserProfile {
+  constructor(movieCount) {
+    this._element = null;
+    this._movieCount = movieCount;
+  }
+
+  getTemplate() {
+    return createUserProfileTemplate(this._movieCount);
+  }
+
+  getElement() {
+    if (!this._element) {
+      this._element = createElement(this.getTemplate());
+    }
+
+    return this._element;
+  }
+
+  removeElement() {
+    this._element = null;
+  }
+}

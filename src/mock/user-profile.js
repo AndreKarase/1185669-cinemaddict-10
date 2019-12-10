@@ -1,4 +1,4 @@
-export const movieCount = (movies) => {
+export const getMovieCount = (movies) => {
   let result = 0;
 
   movies.forEach((movie) => {
