@@ -1,4 +1,4 @@
-import {createElement} from '../util.js';
+import AbstractComponent from './abstract-component.js';
 
 const determimeLevel = (movieCount) => {
   if (movieCount <= 10) {
@@ -22,25 +22,13 @@ const createUserProfileTemplate = (movieCount) => {
   );
 };
 
-export default class UserProfile {
+export default class UserProfile extends AbstractComponent {
   constructor(movieCount) {
-    this._element = null;
+    super();
     this._movieCount = movieCount;
   }
 
   getTemplate() {
     return createUserProfileTemplate(this._movieCount);
-  }
-
-  getElement() {
-    if (!this._element) {
-      this._element = createElement(this.getTemplate());
-    }
-
-    return this._element;
-  }
-
-  removeElement() {
-    this._element = null;
   }
 }
