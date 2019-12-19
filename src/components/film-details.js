@@ -1,6 +1,7 @@
-import AbstractComponent from './abstract-component.js';
+import AbstractSmartComponent from './abstract-smart-component.js';
+import {erase} from '../utils/render.js';
 
-const createFilmDetailsTemplate = (movie) => {
+const createFilmDetailsTemplate = (movie, options = {}) => {
   const {
     poster,
     title,
@@ -17,6 +18,8 @@ const createFilmDetailsTemplate = (movie) => {
     ageRating,
     comments
   } = movie;
+
+  const {isWatchlist, isHistory, isFavorite, addedEmoji} = options;
 
   const createGenresMarkup = () => {
     return genres.map((genre) => {
@@ -48,6 +51,19 @@ const createFilmDetailsTemplate = (movie) => {
     }).join(`\n`);
   };
 
+  const createRatingScoreMarkup = () => {
+    return new Array(9).fill(``)
+      .map((it, i) => {
+        return (
+          `<input type="radio" name="score" class="film-details__user-rating-input visually-hidden" value="${i + 1}" id="rating-${i + 1}" ${i === 8 ? `checked` : ``}>
+          <label class="film-details__user-rating-label" for="rating-${i + 1}">${i + 1}</label>`
+        );
+      }).join(`\n`);
+  };
+
+  const genresKey = genres.length > 1 ? `Genres` : `Genre`;
+
+  const ratingScoreMarkup = createRatingScoreMarkup();
   const genresMarkup = createGenresMarkup();
   const commentsMarkUp = createCommentsMarkup();
 
@@ -103,7 +119,7 @@ const createFilmDetailsTemplate = (movie) => {
                 <td class="film-details__cell">${country}</td>
               </tr>
               <tr class="film-details__row">
-                <td class="film-details__term">Genres</td>
+                <td class="film-details__term">${genresKey}</td>
                 <td class="film-details__cell">
                   ${genresMarkup}
               </tr>
@@ -116,16 +132,41 @@ const createFilmDetailsTemplate = (movie) => {
         </div>
 
         <section class="film-details__controls">
-          <input type="checkbox" class="film-details__control-input visually-hidden" id="watchlist" name="watchlist">
+          <input type="checkbox" class="film-details__control-input visually-hidden" id="watchlist" name="watchlist" ${isWatchlist ? `checked` : ``}>
           <label for="watchlist" class="film-details__control-label film-details__control-label--watchlist">Add to watchlist</label>
 
-          <input type="checkbox" class="film-details__control-input visually-hidden" id="watched" name="watched">
+          <input type="checkbox" class="film-details__control-input visually-hidden" id="watched" name="watched" ${isHistory ? `checked` : ``}>
           <label for="watched" class="film-details__control-label film-details__control-label--watched">Already watched</label>
 
-          <input type="checkbox" class="film-details__control-input visually-hidden" id="favorite" name="favorite">
+          <input type="checkbox" class="film-details__control-input visually-hidden" id="favorite" name="favorite" ${isFavorite ? `checked` : ``}>
           <label for="favorite" class="film-details__control-label film-details__control-label--favorite">Add to favorites</label>
         </section>
       </div>
+
+      ${isHistory ?
+      `<div class="form-details__middle-container">
+        <section class="film-details__user-rating-wrap">
+          <div class="film-details__user-rating-controls">
+            <button class="film-details__watched-reset" type="button">Undo</button>
+          </div>
+
+          <div class="film-details__user-score">
+            <div class="film-details__user-rating-poster">
+              <img src="${poster}" alt="film-poster" class="film-details__user-rating-img">
+            </div>
+
+            <section class="film-details__user-rating-inner">
+              <h3 class="film-details__user-rating-title">${title}</h3>
+
+              <p class="film-details__user-rating-feelings">How you feel it?</p>
+
+              <div class="film-details__user-rating-score">
+                ${ratingScoreMarkup}
+              </div>
+            </section>
+          </div>
+        </section>
+      </div>` : ``}
 
       <div class="form-details__bottom-container">
         <section class="film-details__comments-wrap">
@@ -136,7 +177,11 @@ const createFilmDetailsTemplate = (movie) => {
           </ul>
 
           <div class="film-details__new-comment">
-            <div for="add-emoji" class="film-details__add-emoji-label"></div>
+            <div for="add-emoji" class="film-details__add-emoji-label">
+      ${addedEmoji !== `` ?
+      `<img src="${addedEmoji}" width="55" height="55" alt="emoji">`
+      : ``}
+            </div>
 
             <label class="film-details__comment-label">
               <textarea class="film-details__comment-input" placeholder="Select reaction below and write comment here" name="comment"></textarea>
@@ -171,18 +216,75 @@ const createFilmDetailsTemplate = (movie) => {
   );
 };
 
-export default class FilmDetails extends AbstractComponent {
+export default class FilmDetails extends AbstractSmartComponent {
   constructor(movie) {
     super();
     this._movie = movie;
+    this._isWatchlist = movie.isWatchlist;
+    this._isHistory = movie.isHistory;
+    this._isFavorite = movie.isFavorite;
+    this._emoji = ``;
+
+    this._watchlistChangeHandler = null;
+    this._watchedChangeHandler = null;
+    this._favoriteChangeHandler = null;
+
+    this._subscribeOnEvents();
   }
 
   getTemplate() {
-    return createFilmDetailsTemplate(this._movie);
+    return createFilmDetailsTemplate(this._movie, {
+      isWatchlist: this._isWatchlist,
+      isHistory: this._isHistory,
+      isFavorite: this._isFavorite,
+      addedEmoji: this._emoji,
+    });
   }
 
-  setCloseBtnClickHandler(handler) {
-    this.getElement().querySelector(`.film-details__close-btn`)
-      .addEventListener(`click`, handler);
+  setWatchlistChangeHandler(handler) {
+    this.getElement().querySelector(`#watchlist`)
+      .addEventListener(`change`, handler);
+    this._watchlistChangeHandler = handler;
+  }
+
+  setWatchedChangeHandler(handler) {
+    this.getElement().querySelector(`#watched`)
+      .addEventListener(`change`, handler);
+    this._watchedChangeHandler = handler;
+  }
+
+  setFavoriteChangeHandler(handler) {
+    this.getElement().querySelector(`#favorite`)
+      .addEventListener(`change`, handler);
+    this._favoriteChangeHandler = handler;
+  }
+
+  recoveryListeners() {
+    this._subscribeOnEvents();
+  }
+
+  _subscribeOnEvents() {
+    const element = this.getElement();
+
+    element.querySelector(`.film-details__close-btn`)
+    .addEventListener(`click`, () => {
+      element.querySelector(`.film-details__comment-input`).value = ``;
+
+      erase(this);
+    });
+
+    this.setWatchlistChangeHandler(this._watchlistChangeHandler);
+    this.setWatchedChangeHandler(this._watchedChangeHandler);
+    this.setFavoriteChangeHandler(this._favoriteChangeHandler);
+
+    element.querySelector(`.film-details__emoji-list`)
+      .addEventListener(`click`, (evt) => {
+        if (evt.target.tagName === `IMG` ||
+        evt.target.classList.contains(`film-details__emoji-label`)) {
+          this._emoji = evt.target.src || evt.target.querySelector(`img`).src;
+        }
+
+        this.rerender();
+      });
   }
 }
