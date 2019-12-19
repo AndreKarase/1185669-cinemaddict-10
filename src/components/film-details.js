@@ -225,6 +225,10 @@ export default class FilmDetails extends AbstractSmartComponent {
     this._isFavorite = movie.isFavorite;
     this._emoji = ``;
 
+    this._watchlistChangeHandler = null;
+    this._watchedChangeHandler = null;
+    this._favoriteChangeHandler = null;
+
     this._subscribeOnEvents();
   }
 
@@ -237,25 +241,23 @@ export default class FilmDetails extends AbstractSmartComponent {
     });
   }
 
-  // setCloseBtnClickHandler(handler) {
-  //   this.getElement().querySelector(`.film-details__close-btn`)
-  //     .addEventListener(`click`, handler);
-  // }
+  setWatchlistChangeHandler(handler) {
+    this.getElement().querySelector(`#watchlist`)
+      .addEventListener(`change`, handler);
+    this._watchlistChangeHandler = handler;
+  }
 
-  // setWatchlistClickHandler(handler) {
-  //   this.getElement().querySelector(`#watchlist`)
-  //     .addEventListener(`click`, handler);
-  // }
+  setWatchedChangeHandler(handler) {
+    this.getElement().querySelector(`#watched`)
+      .addEventListener(`change`, handler);
+    this._watchedChangeHandler = handler;
+  }
 
-  // setWatchedClickHandler(handler) {
-  //   this.getElement().querySelector(`#watched`)
-  //     .addEventListener(`click`, handler);
-  // }
-
-  // setFavoriteClickHandler(handler) {
-  //   this.getElement().querySelector(`#favorite`)
-  //     .addEventListener(`click`, handler);
-  // }
+  setFavoriteChangeHandler(handler) {
+    this.getElement().querySelector(`#favorite`)
+      .addEventListener(`change`, handler);
+    this._favoriteChangeHandler = handler;
+  }
 
   recoveryListeners() {
     this._subscribeOnEvents();
@@ -271,31 +273,15 @@ export default class FilmDetails extends AbstractSmartComponent {
       erase(this);
     });
 
-    element.querySelector(`#watchlist`)
-      .addEventListener(`change`, () => {
-        this._isWatchlist = element.querySelector(`#watchlist`).checked;
-
-        this.rerender();
-      });
-
-    element.querySelector(`#watched`)
-      .addEventListener(`change`, () => {
-        this._isHistory = element.querySelector(`#watched`).checked;
-
-        this.rerender();
-      });
-
-    element.querySelector(`#favorite`)
-      .addEventListener(`change`, () => {
-        this._isFavorite = element.querySelector(`#favorite`).checked;
-
-        this.rerender();
-      });
+    this.setWatchlistChangeHandler(this._watchlistChangeHandler);
+    this.setWatchedChangeHandler(this._watchedChangeHandler);
+    this.setFavoriteChangeHandler(this._favoriteChangeHandler);
 
     element.querySelector(`.film-details__emoji-list`)
       .addEventListener(`click`, (evt) => {
-        if (evt.target.tagName === `IMG`) {
-          this._emoji = evt.target.src;
+        if (evt.target.tagName === `IMG` ||
+        evt.target.classList.contains(`film-details__emoji-label`)) {
+          this._emoji = evt.target.src || evt.target.querySelector(`img`).src;
         }
 
         this.rerender();
