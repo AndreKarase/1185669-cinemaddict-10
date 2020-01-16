@@ -132,6 +132,7 @@ const generateMovie = () => {
   const title = getRandomArrayItem(TITLES);
 
   return {
+    id: String(new Date() + Math.random()),
     title,
     poster: `./images/posters/${getRandomArrayItem(POSTERS)}`,
     description: getDescription(),
