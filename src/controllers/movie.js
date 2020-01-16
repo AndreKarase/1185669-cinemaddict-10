@@ -8,8 +8,9 @@ const Mode = {
 };
 
 export default class MovieController {
-  constructor(container, onDataChange, onViewChange) {
+  constructor(container, moviesModel, onDataChange, onViewChange) {
     this._container = container;
+    this._moviesModel = moviesModel;
     this._onDataChange = onDataChange;
     this._filmCardComponent = null;
     this._filmDetailsComponent = null;
@@ -81,6 +82,14 @@ export default class MovieController {
       }));
     });
 
+    this._filmDetailsComponent.setDeleteBtnClickHandler((index) => {
+      this._onCommentDataChange(movie, index, null);
+    });
+
+    this._filmDetailsComponent.setCommentInputEnterPressHandler(() => {
+      this._onCommentDataChange(movie, null, this._filmDetailsComponent.getData());
+    });
+
     if (oldFilmCardComponent && oldFilmDetailsComponent) {
       replace(this._filmCardComponent, oldFilmCardComponent);
       replace(this._filmDetailsComponent, oldFilmDetailsComponent);
@@ -95,5 +104,16 @@ export default class MovieController {
 
       this._mode = Mode.DEFAULT;
     }
+  }
+
+  _onCommentDataChange(movie, index, newData) {
+    if (newData === null) {
+      this._moviesModel.removeComment(movie.id, index);
+
+    } else if (index === null) {
+      this._moviesModel.addComment(movie.id, newData);
+    }
+
+    this.render(movie);
   }
 }
