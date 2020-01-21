@@ -6,7 +6,7 @@ const getMenuItemByFilterType = (filterType) => {
   }
 
   return filterType[0].toUpperCase() + filterType.substr(1);
-}
+};
 
 const createFilterMarkup = (filter, isChecked) => {
   const {name, count} = filter;
