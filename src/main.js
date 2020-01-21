@@ -1,4 +1,4 @@
-const MOVIES_COUNT = 10;
+const MOVIES_COUNT = 15;
 
 import BoardComponent from './components/board.js';
 import UserProfileComponent from './components/user-profile.js';

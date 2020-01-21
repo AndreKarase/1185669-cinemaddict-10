@@ -1,3 +1,6 @@
+import SortComponent from '../components/sort.js';
+import FilmsComponent from '../components/films.js';
+import NoFilmsComponent from '../components/no-films.js';
 import ShowMoreButtonComponent from '../components/show-more-button.js';
 import {render, remove} from '../utils/render.js';
 import MovieController from './movie.js';
@@ -28,6 +31,9 @@ export default class PageController {
     this._topRatedMovies = [];
     this._mostCommentedMovies = [];
     this._container = container;
+    this._sortComponent = new SortComponent();
+    this._filmsComponent = new FilmsComponent();
+    this._noFilmsComponent = new NoFilmsComponent();
     this._showMoreButton = new ShowMoreButtonComponent();
     this._showedMovieControllers = [];
     this._showingMoviesCount = SHOWING_MOVIES_COUNT_ON_START;
@@ -43,6 +49,14 @@ export default class PageController {
   render() {
     const movies = this._moviesModel.getMovies();
     const container = this._container;
+
+    if (movies.length === 0) {
+      render(container, this._noFilmsComponent, `beforeend`);
+      return;
+    }
+
+    render(container, this._sortComponent, `beforeend`);
+    render(container, this._filmsComponent, `beforeend`);
 
     this._showingMoviesCount = Math.min(SHOWING_MOVIES_COUNT_ON_START, movies.length);
 
@@ -94,7 +108,6 @@ export default class PageController {
 
     if (this._showingMoviesCount >= movies.length) {
       this._showingMoviesCount = movies.length;
-      remove(this._showMoreButton);
     }
 
     for (let i = prevMoviesCount; i < this._showingMoviesCount; i++) {
@@ -105,12 +118,7 @@ export default class PageController {
   }
 
   _removeMovies() {
-    const filmsListElement = this._container.querySelector(`.films-list__container`);
-    filmsListElement.innerHTML = ``;
-
-    const filmsListExtraElements = this._container.querySelectorAll(`.films-list--extra`);
-    filmsListExtraElements.innerHTML = ``;
-
+    this._showedMovieControllers.forEach((movieController) => movieController.destroy());
     this._showedMovieControllers = [];
   }
 
@@ -126,6 +134,8 @@ export default class PageController {
 
   _onFilterChange() {
     this._removeMovies();
+    remove(this._noFilmsComponent);
+    remove(this._showMoreButton);
     this.render();
   }
 }

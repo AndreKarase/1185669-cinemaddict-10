@@ -1,6 +1,6 @@
 import FilmCardComponent from '../components/film-card.js';
 import FilmDetailsComponent from '../components/film-details.js';
-import {render, replace, erase} from '../utils/render.js';
+import {render, replace, erase, remove} from '../utils/render.js';
 
 const Mode = {
   DEFAULT: `default`,
@@ -25,26 +25,20 @@ export default class MovieController {
     this._filmCardComponent = new FilmCardComponent(movie);
     this._filmDetailsComponent = new FilmDetailsComponent(movie);
 
-    this._filmCardComponent.setPosterClickHandler(() => {
+    const openPopup = () => {
       this._onViewChange();
       this._mode = Mode.DETAILS;
 
       render(document.body, this._filmDetailsComponent, `beforeend`);
-    });
 
-    this._filmCardComponent.setTitleClickHandler(() => {
-      this._onViewChange();
-      this._mode = Mode.DETAILS;
+      document.addEventListener(`keydown`, this._onEscPress);
+    };
 
-      render(document.body, this._filmDetailsComponent, `beforeend`);
-    });
+    this._filmCardComponent.setPosterClickHandler(openPopup);
 
-    this._filmCardComponent.setCommentsClickHandler(() => {
-      this._onViewChange();
-      this._mode = Mode.DETAILS;
+    this._filmCardComponent.setTitleClickHandler(openPopup);
 
-      render(document.body, this._filmDetailsComponent, `beforeend`);
-    });
+    this._filmCardComponent.setCommentsClickHandler(openPopup);
 
     this._filmCardComponent.setAddToWatchlistBtnClickHandler(() => {
       this._onDataChange(this, movie, Object.assign({}, movie, {
@@ -96,6 +90,20 @@ export default class MovieController {
     } else {
       render(this._container, this._filmCardComponent, `beforeend`);
     }
+  }
+
+  _onEscPress(evt) {
+    const isEscKey = evt.key === `Escape` || evt.key === `Esc`;
+    if (isEscKey) {
+      erase(this._filmDetailsComponent);
+      document.removeEventListener(`keydown`, this._onEscPress);
+    }
+  }
+
+  destroy() {
+    remove(this._filmCardComponent);
+    remove(this._filmDetailsComponent);
+    document.removeEventListener(`keydown`, this._onEscPress);
   }
 
   setDefaultView() {
