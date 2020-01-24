@@ -1,4 +1,5 @@
 import AbstractComponent from './abstract-component.js';
+import moment from 'moment';
 
 const createSortTemplate = () => {
   return (

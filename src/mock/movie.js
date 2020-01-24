@@ -137,7 +137,6 @@ const generateMovie = () => {
     poster: `./images/posters/${getRandomArrayItem(POSTERS)}`,
     description: getDescription(),
     rating: Math.floor(Math.random() * 101) / 10.0,
-    year: Math.floor(Math.random() * (2010 - 1950)) + 1950,
     duration: `${Math.floor(Math.random() * 2) + 1}h ${Math.floor(Math.random() * 60)}m`,
     genres: getGenres(GENRES),
     isWatchlist: Math.random() < 0.5,
@@ -148,7 +147,7 @@ const generateMovie = () => {
     director: getRandomArrayItem(DIRECTORS),
     writers: getRandomArrayItem(WRITERS),
     cast: getRandomArrayItem(CASTS),
-    releaseDate: getRandomArrayItem(DATES),
+    releaseDate: new Date(getRandomArrayItem(DATES)),
     country: getRandomArrayItem(COUNTRIES),
     ageRating: getRandomArrayItem(AGE_RATINGS),
     comments: COMMENTS.slice(0, Math.floor(Math.random() * 4))

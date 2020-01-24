@@ -1,5 +1,6 @@
 import AbstractSmartComponent from './abstract-smart-component.js';
 import {erase} from '../utils/render.js';
+import moment from 'moment';
 
 const EMOJI = [
   `smile`,
@@ -82,6 +83,7 @@ const createFilmDetailsTemplate = (movie, options = {}) => {
       }).join(`\n`);
   };
 
+  const releaseDateFormated = moment(releaseDate).format(`DD MMMM YYYY`);
   const genresKey = genres.length > 1 ? `Genres` : `Genre`;
 
   const ratingScoreMarkup = createRatingScoreMarkup();
@@ -130,7 +132,7 @@ const createFilmDetailsTemplate = (movie, options = {}) => {
               </tr>
               <tr class="film-details__row">
                 <td class="film-details__term">Release Date</td>
-                <td class="film-details__cell">${releaseDate}</td>
+                <td class="film-details__cell">${releaseDateFormated}</td>
               </tr>
               <tr class="film-details__row">
                 <td class="film-details__term">Runtime</td>
@@ -221,19 +223,11 @@ const createFilmDetailsTemplate = (movie, options = {}) => {
 };
 
 const parseFormData = (formData) => {
-  const options = {
-    hour12: false,
-    year: `numeric`,
-    month: `numeric`,
-    day: `numeric`,
-    hour: `numeric`,
-    minute: `numeric`
-  };
 
   return {
     name: `You`,
     text: formData.get(`comment`),
-    time: new Date().toLocaleString(`en-US`, options),
+    time: moment(Date.now()).format(`YYYY/MM/DD HH:MM`),
     emoji: `./images/emoji/${formData.get(`comment-emoji`)}.png`
   };
 };
