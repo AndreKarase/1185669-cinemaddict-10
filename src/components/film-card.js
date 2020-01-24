@@ -1,7 +1,8 @@
 import AbstractComponent from './abstract-component.js';
 
 const createFilmCardTemplate = (movie) => {
-  const {title, poster, description, rating, year, duration, genres, comments, isFavorite, isHistory, isWatchlist} = movie;
+  const {title, poster, description, rating, duration, genres, comments, isFavorite, isHistory, isWatchlist} = movie;
+  const year = movie.releaseDate.getFullYear();
 
   return (
     `<article class="film-card">
