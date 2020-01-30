@@ -1,5 +1,4 @@
 import AbstractComponent from './abstract-component.js';
-import moment from 'moment';
 
 const createSortTemplate = () => {
   return (
@@ -20,6 +19,10 @@ export default class Sort extends AbstractComponent {
 
   getTemplate() {
     return createSortTemplate();
+  }
+
+  setDefaultSortType() {
+    this._currentSortType = `default`;
   }
 
   setSortTypeChangeHandler(handler) {

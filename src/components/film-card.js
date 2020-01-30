@@ -1,16 +1,23 @@
 import AbstractComponent from './abstract-component.js';
 
+const DESCRIPTION_MAX = 140;
+
 const createFilmCardTemplate = (movie) => {
-  const {title, poster, description, rating, duration, genres, comments, isFavorite, isHistory, isWatchlist} = movie;
+  const {title, poster, description: notCroppeddescription, rating, userRating, runtime, genres, comments, isFavorite, isHistory, isWatchlist} = movie;
   const year = movie.releaseDate.getFullYear();
+  const formatedRuntime = `${Math.floor(runtime / 60)}h ${runtime % 60}m`;
+  const description = notCroppeddescription.length > DESCRIPTION_MAX ?
+    notCroppeddescription.substr(0, DESCRIPTION_MAX - 1) + `…` :
+    notCroppeddescription;
+
 
   return (
     `<article class="film-card">
     <h3 class="film-card__title">${title}</h3>
-    <p class="film-card__rating">${rating}</p>
+    <p ${userRating ? `style="color:#14d1ff"` : `rating`} class="film-card__rating">${userRating ? userRating : rating}</p>
     <p class="film-card__info">
       <span class="film-card__year">${year}</span>
-      <span class="film-card__duration">${duration}</span>
+      <span class="film-card__duration">${formatedRuntime}</span>
       <span class="film-card__genre">${genres[0]}</span>
     </p>
     <img src="${poster}" alt="" class="film-card__poster">

@@ -2,7 +2,7 @@ import AbstractComponent from './abstract-component.js';
 
 const createBoardTemplate = () => {
   return (
-    `<div></div>`
+    `<div class="films-page"></div>`
   );
 };
 

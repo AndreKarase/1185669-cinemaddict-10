@@ -82,21 +82,32 @@ const AGE_RATINGS = [
 ];
 
 const COMMENTS = [{
+  id: `1`,
   name: `Tim Macoveev`,
   text: `Interesting setting and a good cast`,
   time: `2019/12/31 23:59`,
   emoji: `./images/emoji/smile.png`
 }, {
+  id: `2`,
   name: `John Doe`,
   text: `Booooooooooring`,
   time: `2 days ago`,
   emoji: `./images/emoji/sleeping.png`
 }, {
+  id: `3`,
   name: `John Doe`,
   text: `Very very old. Meh`,
   time: `2 days ago`,
   emoji: `./images/emoji/puke.png`
 }];
+
+const DATES_WATCH = [
+  new Date(2020, 0, 28, 4),
+  new Date(2020, 0, 27),
+  new Date(2020, 0, 5),
+  new Date(2019, 5, 25),
+  new Date(2005, 4, 8),
+];
 
 const text = `Lorem ipsum dolor sit amet, consectetur adipiscing elit. Cras aliquet varius magna, non porta ligula feugiat eget. Fusce tristique felis at fermentum pharetra. Aliquam id orci ut lectus varius viverra. Nullam nunc ex, convallis sed finibus eget, sollicitudin eget ante. Phasellus eros mauris, condimentum sed nibh vitae, sodales efficitur ipsum. Sed blandit, eros vel aliquam faucibus, purus ex euismod diam, eu luctus nunc ante ut dui. Sed sed nisi sed augue convallis suscipit in sed felis. Aliquam erat volutpat. Nunc fermentum tortor ac porta dapibus. In rutrum ac purus sit amet tempus`;
 const sentenses = text.split(`. `);
@@ -130,6 +141,7 @@ const getGenres = (genres) => {
 
 const generateMovie = () => {
   const title = getRandomArrayItem(TITLES);
+  const isHistory = Math.random() < 0.3;
 
   return {
     id: String(new Date() + Math.random()),
@@ -137,20 +149,21 @@ const generateMovie = () => {
     poster: `./images/posters/${getRandomArrayItem(POSTERS)}`,
     description: getDescription(),
     rating: Math.floor(Math.random() * 101) / 10.0,
-    duration: `${Math.floor(Math.random() * 2) + 1}h ${Math.floor(Math.random() * 60)}m`,
+    runtime: Math.floor(Math.random() * 100) + 80,
     genres: getGenres(GENRES),
     isWatchlist: Math.random() < 0.5,
-    isHistory: Math.random() < 0.1,
+    isHistory,
     isFavorite: Math.random() < 0.3,
     originalTitle: title,
-    userRating: Math.floor(Math.random() * 11),
+    userRating: null,
     director: getRandomArrayItem(DIRECTORS),
     writers: getRandomArrayItem(WRITERS),
     cast: getRandomArrayItem(CASTS),
     releaseDate: new Date(getRandomArrayItem(DATES)),
     country: getRandomArrayItem(COUNTRIES),
     ageRating: getRandomArrayItem(AGE_RATINGS),
-    comments: COMMENTS.slice(0, Math.floor(Math.random() * 4))
+    comments: COMMENTS.slice(0, Math.floor(Math.random() * 4)),
+    watchingDate: isHistory ? getRandomArrayItem(DATES_WATCH) : null
   };
 };
 

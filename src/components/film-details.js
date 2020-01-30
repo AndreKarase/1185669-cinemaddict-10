@@ -1,6 +1,7 @@
 import AbstractSmartComponent from './abstract-smart-component.js';
 import {erase} from '../utils/render.js';
 import moment from 'moment';
+import he from 'he';
 
 const EMOJI = [
   `smile`,
@@ -15,11 +16,12 @@ const createFilmDetailsTemplate = (movie, options = {}) => {
     title,
     originalTitle,
     rating,
+    userRating,
     director,
     writers,
     cast,
     releaseDate,
-    duration,
+    runtime,
     country,
     genres,
     description,
@@ -53,7 +55,8 @@ const createFilmDetailsTemplate = (movie, options = {}) => {
 
   const createCommentsMarkup = () => {
     return comments.map((comment) => {
-      const {emoji, text, name, time} = comment;
+      const {emoji, text: notSanitizedText, name, time} = comment;
+      const text = he.encode(notSanitizedText);
 
       return (
         `<li class="film-details__comment">
@@ -74,10 +77,12 @@ const createFilmDetailsTemplate = (movie, options = {}) => {
   };
 
   const createRatingScoreMarkup = () => {
-    return new Array(9).fill(``)
+
+    return new Array(10).fill(``)
       .map((it, i) => {
+
         return (
-          `<input type="radio" name="score" class="film-details__user-rating-input visually-hidden" value="${i + 1}" id="rating-${i + 1}" ${i === 8 ? `checked` : ``}>
+          `<input type="radio" name="score" class="film-details__user-rating-input visually-hidden" value="${i + 1}" id="rating-${i + 1}" ${i + 1 === userRating ? `checked` : ``}>
           <label class="film-details__user-rating-label" for="rating-${i + 1}">${i + 1}</label>`
         );
       }).join(`\n`);
@@ -85,6 +90,7 @@ const createFilmDetailsTemplate = (movie, options = {}) => {
 
   const releaseDateFormated = moment(releaseDate).format(`DD MMMM YYYY`);
   const genresKey = genres.length > 1 ? `Genres` : `Genre`;
+  const formatedRuntime = `${Math.floor(runtime / 60)}h ${runtime % 60}m`;
 
   const ratingScoreMarkup = createRatingScoreMarkup();
   const genresMarkup = createGenresMarkup();
@@ -114,6 +120,7 @@ const createFilmDetailsTemplate = (movie, options = {}) => {
 
               <div class="film-details__rating">
                 <p class="film-details__total-rating">${rating}</p>
+${userRating ? `<p class="film-details__user-rating">Your rate ${userRating}</p>` : ``}
               </div>
             </div>
 
@@ -136,7 +143,7 @@ const createFilmDetailsTemplate = (movie, options = {}) => {
               </tr>
               <tr class="film-details__row">
                 <td class="film-details__term">Runtime</td>
-                <td class="film-details__cell">${duration}</td>
+                <td class="film-details__cell">${formatedRuntime}</td>
               </tr>
               <tr class="film-details__row">
                 <td class="film-details__term">Country</td>
@@ -281,6 +288,32 @@ export default class FilmDetails extends AbstractSmartComponent {
     this.getElement().querySelector(`#favorite`)
       .addEventListener(`change`, handler);
     this._favoriteChangeHandler = handler;
+  }
+
+  setUserRatingInputChangeHandler(handler) {
+    const userRatingScore = this.getElement().querySelector(`.film-details__user-rating-score`);
+
+    if (!userRatingScore) {
+      return;
+    }
+
+    userRatingScore.addEventListener(`change`, (evt) => {
+      if (evt.target.tagName !== `INPUT`) {
+        return;
+      }
+
+      handler(+evt.target.value);
+    });
+  }
+
+  setUserRatingResetBtnClickHandler(handler) {
+    const resetBtn = this.getElement().querySelector(`.film-details__watched-reset`);
+
+    if (!resetBtn) {
+      return;
+    }
+
+    resetBtn.addEventListener(`click`, handler);
   }
 
   setDeleteBtnClickHandler(handler) {

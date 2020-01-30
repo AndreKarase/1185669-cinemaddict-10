@@ -16,6 +16,7 @@ export default class FilterController {
 
     this._filterComponent = null;
     this._activeFilterType = `all`;
+    this._onChange = null;
 
     this._onFilterChange = this._onFilterChange.bind(this);
     this._onDataChange = this._onDataChange.bind(this);
@@ -38,6 +39,11 @@ export default class FilterController {
     const oldComponent = this._filterComponent;
 
     this._filterComponent = new FilterComponent(filters);
+
+    if (this._onChange) {
+      this._filterComponent.setFilterChangeHandler(this._onChange);
+    }
+
     this._filterComponent.setFilterChangeHandler(this._onFilterChange);
 
     if (oldComponent) {
@@ -45,6 +51,11 @@ export default class FilterController {
     } else {
       render(container, this._filterComponent, `beforeend`);
     }
+  }
+
+  setOnChange(handler) {
+    this._onChange = handler;
+    this._filterComponent.setFilterChangeHandler(this._onChange);
   }
 
   _onFilterChange(filterType) {
