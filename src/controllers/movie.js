@@ -16,6 +16,8 @@ export default class MovieController {
     this._filmDetailsComponent = null;
     this._mode = Mode.DEFAULT;
     this._onViewChange = onViewChange;
+
+    this._onEscPress = this._onEscPress.bind(this);
   }
 
   render(movie) {
@@ -48,6 +50,7 @@ export default class MovieController {
 
     this._filmCardComponent.setMarkAsWathedBtnClickHandler(() => {
       this._onDataChange(this, movie, Object.assign({}, movie, {
+        watchingDate: movie.isHistory ? null : new Date(Date.now()),
         isHistory: !movie.isHistory
       }));
     });
@@ -62,18 +65,41 @@ export default class MovieController {
       this._onDataChange(this, movie, Object.assign({}, movie, {
         isWatchlist: !movie.isWatchlist
       }));
+
+      openPopup();
     });
 
     this._filmDetailsComponent.setWatchedChangeHandler(() => {
       this._onDataChange(this, movie, Object.assign({}, movie, {
+        watchingDate: movie.isHistory ? null : new Date(Date.now()),
         isHistory: !movie.isHistory
       }));
+
+      openPopup();
     });
 
     this._filmDetailsComponent.setFavoriteChangeHandler(() => {
       this._onDataChange(this, movie, Object.assign({}, movie, {
         isFavorite: !movie.isFavorite
       }));
+
+      openPopup();
+    });
+
+    this._filmDetailsComponent.setUserRatingInputChangeHandler((value) => {
+      this._onDataChange(this, movie, Object.assign({}, movie, {
+        userRating: value
+      }));
+
+      openPopup();
+    });
+
+    this._filmDetailsComponent.setUserRatingResetBtnClickHandler(() => {
+      this._onDataChange(this, movie, Object.assign({}, movie, {
+        userRating: null
+      }));
+
+      openPopup();
     });
 
     this._filmDetailsComponent.setDeleteBtnClickHandler((index) => {
@@ -123,5 +149,6 @@ export default class MovieController {
     }
 
     this.render(movie);
+    this._onDataChange();
   }
 }

@@ -42,6 +42,10 @@ export default class SiteMenu extends AbstractComponent {
 
   setFilterChangeHandler(handler) {
     this.getElement().addEventListener(`click`, (evt) => {
+      if (evt.target.tagName !== `A`) {
+        return;
+      }
+
       const filterTypePos = evt.target.href.indexOf(`#`) + 1;
       const filterType = evt.target.href.substr(filterTypePos);
       handler(filterType);
