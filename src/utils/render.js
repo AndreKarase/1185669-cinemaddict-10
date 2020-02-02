@@ -27,6 +27,10 @@ export const erase = (component) => {
 };
 
 export const remove = (component) => {
+  if (!component) {
+    return;
+  }
+
   component.getElement().remove();
   component.removeElement();
 };

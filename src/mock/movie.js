@@ -43,19 +43,19 @@ const DIRECTORS = [
 ];
 
 const WRITERS = [
-  `Stephen King, Frank Darabont`,
-  `Mario Puzo, Francis Ford Coppola`,
-  `Reginald Rose, Reginald Rose`,
-  `Thomas Keneally, Steven Zaillian`,
-  `Chuck Palahniuk, Jim Uhls`
+  `Stephen King`,
+  `Mario Puzo`,
+  `Reginald Rose`,
+  `Thomas Keneally`,
+  `Chuck Palahniuk`
 ];
 
 const CASTS = [
-  `Brad Pitt, Edward Norton, Meat Loaf`,
-  `John Travolta, Uma Thurman, Samuel L. Jackson`,
-  `Leonardo DiCaprio, Joseph Gordon-Levitt, Ellen Page`,
-  `Mark Hamill, Harrison Ford, Carrie Fisher`,
-  `Keanu Reeves, Laurence Fishburne, Carrie-Anne Moss`
+  `Brad Pitt`,
+  `John Travolta`,
+  `Leonardo DiCaprio`,
+  `Mark Hamill`,
+  `Keanu Reeves`
 ];
 
 const DATES = [
@@ -155,13 +155,13 @@ const generateMovie = () => {
     isHistory,
     isFavorite: Math.random() < 0.3,
     originalTitle: title,
-    userRating: null,
+    userRating: Math.random() < 0.9 ? null : 8,
     director: getRandomArrayItem(DIRECTORS),
-    writers: getRandomArrayItem(WRITERS),
-    cast: getRandomArrayItem(CASTS),
+    writers: WRITERS,
+    cast: CASTS,
     releaseDate: new Date(getRandomArrayItem(DATES)),
     country: getRandomArrayItem(COUNTRIES),
-    ageRating: getRandomArrayItem(AGE_RATINGS),
+    ageRating: 18,
     comments: COMMENTS.slice(0, Math.floor(Math.random() * 4)),
     watchingDate: isHistory ? getRandomArrayItem(DATES_WATCH) : null
   };

@@ -10,6 +10,12 @@ const EMOJI = [
   `angry`
 ];
 
+const MARKS = [
+  `watchlist`,
+  `history`,
+  `favorite`
+];
+
 const createFilmDetailsTemplate = (movie, options = {}) => {
   const {
     poster,
@@ -18,8 +24,8 @@ const createFilmDetailsTemplate = (movie, options = {}) => {
     rating,
     userRating,
     director,
-    writers,
-    cast,
+    writers: writersArr,
+    cast: castArr,
     releaseDate,
     runtime,
     country,
@@ -55,13 +61,14 @@ const createFilmDetailsTemplate = (movie, options = {}) => {
 
   const createCommentsMarkup = () => {
     return comments.map((comment) => {
-      const {emoji, text: notSanitizedText, name, time} = comment;
+      const {emoji, text: notSanitizedText, name, time: notFormattedTime} = comment;
       const text = he.encode(notSanitizedText);
+      const time = moment(notFormattedTime).format(`YYYY/MM/DD HH:MM`);
 
       return (
         `<li class="film-details__comment">
         <span class="film-details__comment-emoji">
-          <img src="${emoji}" width="55" height="55" alt="emoji">
+          <img src="./images/emoji/${emoji}.png" width="55" height="55" alt="emoji">
         </span>
         <div>
           <p class="film-details__comment-text">${text}</p>
@@ -78,7 +85,7 @@ const createFilmDetailsTemplate = (movie, options = {}) => {
 
   const createRatingScoreMarkup = () => {
 
-    return new Array(10).fill(``)
+    return new Array(9).fill(``)
       .map((it, i) => {
 
         return (
@@ -91,6 +98,8 @@ const createFilmDetailsTemplate = (movie, options = {}) => {
   const releaseDateFormated = moment(releaseDate).format(`DD MMMM YYYY`);
   const genresKey = genres.length > 1 ? `Genres` : `Genre`;
   const formatedRuntime = `${Math.floor(runtime / 60)}h ${runtime % 60}m`;
+  const writers = writersArr.join(`, `);
+  const cast = castArr.join(`, `);
 
   const ratingScoreMarkup = createRatingScoreMarkup();
   const genresMarkup = createGenresMarkup();
@@ -108,7 +117,7 @@ const createFilmDetailsTemplate = (movie, options = {}) => {
           <div class="film-details__poster">
             <img class="film-details__poster-img" src="${poster}" alt="">
 
-            <p class="film-details__age">${ageRating}</p>
+            <p class="film-details__age">${ageRating}+</p>
           </div>
 
           <div class="film-details__info">
@@ -229,15 +238,6 @@ ${userRating ? `<p class="film-details__user-rating">Your rate ${userRating}</p>
   );
 };
 
-const parseFormData = (formData) => {
-
-  return {
-    name: `You`,
-    text: formData.get(`comment`),
-    time: moment(Date.now()).format(`YYYY/MM/DD HH:MM`),
-    emoji: `./images/emoji/${formData.get(`comment-emoji`)}.png`
-  };
-};
 
 export default class FilmDetails extends AbstractSmartComponent {
   constructor(movie) {
@@ -248,10 +248,8 @@ export default class FilmDetails extends AbstractSmartComponent {
     this._isFavorite = movie.isFavorite;
     this._emoji = ``;
 
-    this._watchlistChangeHandler = null;
-    this._watchedChangeHandler = null;
-    this._favoriteChangeHandler = null;
     this._commentInputEnterPressHandler = null;
+    this._closeBtnClickHandler = null;
 
     this._subscribeOnEvents();
   }
@@ -267,53 +265,8 @@ export default class FilmDetails extends AbstractSmartComponent {
 
   getData() {
     const form = this.getElement().querySelector(`.film-details__inner`);
-    const formData = new FormData(form);
 
-    return parseFormData(formData);
-  }
-
-  setWatchlistChangeHandler(handler) {
-    this.getElement().querySelector(`#watchlist`)
-      .addEventListener(`change`, handler);
-    this._watchlistChangeHandler = handler;
-  }
-
-  setWatchedChangeHandler(handler) {
-    this.getElement().querySelector(`#watched`)
-      .addEventListener(`change`, handler);
-    this._watchedChangeHandler = handler;
-  }
-
-  setFavoriteChangeHandler(handler) {
-    this.getElement().querySelector(`#favorite`)
-      .addEventListener(`change`, handler);
-    this._favoriteChangeHandler = handler;
-  }
-
-  setUserRatingInputChangeHandler(handler) {
-    const userRatingScore = this.getElement().querySelector(`.film-details__user-rating-score`);
-
-    if (!userRatingScore) {
-      return;
-    }
-
-    userRatingScore.addEventListener(`change`, (evt) => {
-      if (evt.target.tagName !== `INPUT`) {
-        return;
-      }
-
-      handler(+evt.target.value);
-    });
-  }
-
-  setUserRatingResetBtnClickHandler(handler) {
-    const resetBtn = this.getElement().querySelector(`.film-details__watched-reset`);
-
-    if (!resetBtn) {
-      return;
-    }
-
-    resetBtn.addEventListener(`click`, handler);
+    return new FormData(form);
   }
 
   setDeleteBtnClickHandler(handler) {
@@ -334,6 +287,13 @@ export default class FilmDetails extends AbstractSmartComponent {
     this._commentInputEnterPressHandler = handler;
   }
 
+  setCloseBtnClickHandler(handler) {
+    this.getElement().querySelector(`.film-details__close-btn`)
+      .addEventListener(`click`, handler);
+
+    this._closeBtnClickHandler = handler;
+  }
+
   recoveryListeners() {
     this._subscribeOnEvents();
   }
@@ -341,17 +301,32 @@ export default class FilmDetails extends AbstractSmartComponent {
   _subscribeOnEvents() {
     const element = this.getElement();
 
-    element.querySelector(`.film-details__close-btn`)
-    .addEventListener(`click`, () => {
-      element.querySelector(`.film-details__comment-input`).value = ``;
+    const resetBtn = element.querySelector(`.film-details__watched-reset`);
+    const ratingInput = element.querySelectorAll(`.film-details__user-rating-input`);
 
-      erase(this);
-    });
+    if (resetBtn) {
+      resetBtn.addEventListener(`click`, () => {
 
-    this.setWatchlistChangeHandler(this._watchlistChangeHandler);
-    this.setWatchedChangeHandler(this._watchedChangeHandler);
-    this.setFavoriteChangeHandler(this._favoriteChangeHandler);
+      });
+    }
+
+    element.querySelector(`#watched`)
+      .addEventListener(`change`, () => {
+        this._isWatchlist = element.querySelector(`#watchlist`).checked;
+        this._isFavorite = element.querySelector(`#favorite`).checked;
+        this._isHistory = element.querySelector(`#watched`).checked;
+
+        if (!this._isWatchlist) {
+          ratingInput.forEach((it) => {
+            it.checked = false;
+          });
+        }
+
+        this.rerender();
+      });
+
     this.setCommentInputEnterPressHandler(this._commentInputEnterPressHandler);
+    this.setCloseBtnClickHandler(this._closeBtnClickHandler);
 
     element.querySelector(`.film-details__emoji-list`)
       .addEventListener(`click`, (evt) => {

@@ -27,8 +27,13 @@ const getTopTwoItems = (arr, getDiff) => {
   return top;
 };
 
+const getViewedRating = (movie) => {
+  return movie.userRating || movie.rating;
+};
+
 export default class PageController {
-  constructor(container, moviesModel) {
+  constructor(container, moviesModel, api) {
+    this._api = api;
     this._moviesModel = moviesModel;
     this._topRatedMovies = [];
     this._mostCommentedMovies = [];
@@ -94,7 +99,7 @@ export default class PageController {
         case `rating`:
           sortedMovies = this._moviesModel.getMovies()
             .slice(0, this._showingMoviesCount)
-            .sort((a, b) => b.rating - a.rating);
+            .sort((a, b) => getViewedRating(b) - getViewedRating(a));
           break;
         case `default`:
           sortedMovies = this._moviesModel.getMovies().slice();
@@ -115,7 +120,7 @@ export default class PageController {
   _renderMovies(movies, start) {
     const filmsListElement = this._container.getElement().querySelector(`.films-list__container`);
     for (let i = start; i < this._showingMoviesCount; i++) {
-      const movieController = new MovieController(filmsListElement, this._moviesModel, this._onDataChange, this._onViewChange);
+      const movieController = new MovieController(filmsListElement, this._moviesModel, this._onDataChange, this._onViewChange, this._api);
       this._showedMovieControllers.push(movieController);
       movieController.render(movies[i]);
     }
@@ -137,15 +142,11 @@ export default class PageController {
     const filmsListExtraElements = this._container.getElement().querySelectorAll(`.films-list--extra`);
     const topRatedFilmsListElement = filmsListExtraElements[0].querySelector(`.films-list__container`);
 
-    const getViewedRating = (movie) => {
-      return movie.userRating || movie.rating;
-    };
-
     this._topRatedMovies = getTopTwoItems(this._moviesModel.getMoviesAll(), (movieA, movieB) => getViewedRating(movieA) - getViewedRating(movieB));
 
     if (this._topRatedMovies[1].rating !== 0) {
       this._topRatedMovies.forEach((movie) => {
-        const movieController = new MovieController(topRatedFilmsListElement, this._moviesModel, this._onDataChange, this._onViewChange);
+        const movieController = new MovieController(topRatedFilmsListElement, this._moviesModel, this._onDataChange, this._onViewChange, this._api);
         this._showedMovieControllers.push(movieController);
         movieController.render(movie);
       });
@@ -160,7 +161,7 @@ export default class PageController {
 
     if (this._topRatedMovies[1].comments.length !== 0) {
       this._mostCommentedMovies.forEach((movie) => {
-        const movieController = new MovieController(mostCommentedFilmsListElement, this._moviesModel, this._onDataChange, this._onViewChange);
+        const movieController = new MovieController(mostCommentedFilmsListElement, this._moviesModel, this._onDataChange, this._onViewChange, this._api);
         this._showedMovieControllers.push(movieController);
         movieController.render(movie);
       });
@@ -187,13 +188,28 @@ export default class PageController {
     this._showedMovieControllers = [];
   }
 
+  _updateMovies() {
+    this._sortComponent.setDefaultSortType();
+    this._removeMovies();
+    remove(this._noFilmsComponent);
+    remove(this._filmsExtraComponent);
+    remove(this._filmsExtraCommentComponent);
+    this.render();
+  }
+
   _onDataChange(movieController, oldData, newData) {
-    if (!movieController) {
+    if (!movieController) {debugger
       remove(this._filmsExtraCommentComponent);
       render(this._filmsComponent.getElement(), this._filmsExtraCommentComponent, `beforeend`);
       this._renderExtraCommentMovies();
-    } else if (this._moviesModel.updateMovies(oldData.id, newData)) {
-      movieController.render(newData);
+    } else {
+      this._api.updateMovie(oldData.id, newData)
+        .then((movieModel) => {
+          if (this._moviesModel.updateMovies(oldData.id, movieModel)) {
+            // movieController.render(movieModel);
+            this._updateMovies();
+          }
+        });
     }
   }
 
@@ -202,11 +218,6 @@ export default class PageController {
   }
 
   _onFilterChange() {
-    this._sortComponent.setDefaultSortType();
-    this._removeMovies();
-    remove(this._noFilmsComponent);
-    remove(this._filmsExtraComponent);
-    remove(this._filmsExtraCommentComponent);
-    this.render();
+    this._updateMovies();
   }
 }
