@@ -2,6 +2,7 @@ import AbstractSmartComponent from './abstract-smart-component.js';
 import Chart from 'chart.js';
 import ChartDataLabels from 'chartjs-plugin-datalabels';
 import moment from 'moment';
+import {getUserLevel} from '../utils/profile.js';
 
 const getUniqItems = (item, index, array) => {
   return array.indexOf(item) === index;
@@ -166,11 +167,11 @@ const createStatisticsTemplate = (movies, genres, activeFilter, userLevel) => {
 };
 
 export default class Statistics extends AbstractSmartComponent {
-  constructor(moviesModel, userLevel) {
+  constructor(moviesModel) {
     super();
 
     this._moviesModel = moviesModel;
-    this._userLevel = userLevel;
+    this._userLevel = null;
     this._chart = null;
     this._startDate = null;
     this._watchedMovies = this._moviesModel.getMovies().filter((movie) => movie.isHistory);
@@ -187,6 +188,7 @@ export default class Statistics extends AbstractSmartComponent {
 
   rerender(moviesModel) {
     this._moviesModel = moviesModel;
+    this._userLevel = getUserLevel(this._moviesModel.getMoviesAll());
     this._watchedMovies = this._startDate ?
       this._moviesModel.getMovies()
         .filter((movie) => {

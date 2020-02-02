@@ -1,40 +1,34 @@
-const MOVIES_COUNT = 25;
-
+import Api from './api.js';
 import BoardComponent from './components/board.js';
 import StatisticsComponent from './components/statistics.js';
 import UserProfileComponent from './components/user-profile.js';
-import {generateMovies} from './mock/movie.js';
 import {getUserLevel} from './utils/profile.js';
 import {render} from './utils/render.js';
 import PageController from './controllers/board.js';
 import MoviesModel from './models/movies.js';
 import FilterController from './controllers/filter.js';
 
+export const AUTHORIZATION = `Basic Jw&Z0bu9HO%urwjLi`;
+export const END_POINT = `https://htmlacademy-es-10.appspot.com/cinemaddict/`;
+
+const api = new Api(END_POINT, AUTHORIZATION);
+const moviesModel = new MoviesModel();
+
 const siteHeaderElement = document.querySelector(`.header`);
 const siteMainElement = document.querySelector(`.main`);
 
-const movies = generateMovies(MOVIES_COUNT);
-const userLevel = getUserLevel(movies);
-render(siteHeaderElement, new UserProfileComponent(userLevel), `beforeend`);
 
-const moviesModel = new MoviesModel();
-moviesModel.setMovies(movies);
-
-const filterController = new FilterController(siteMainElement, moviesModel);
-filterController.render();
+const statisticsComponent = new StatisticsComponent(moviesModel);
 
 const boardComponent = new BoardComponent();
+const pageController = new PageController(boardComponent, moviesModel, api);
+const filterController = new FilterController(siteMainElement, moviesModel);
+
+filterController.render();
 render(siteMainElement, boardComponent, `beforeend`);
-
-const statisticsComponent = new StatisticsComponent(moviesModel, userLevel);
 render(siteMainElement, statisticsComponent, `beforeend`);
-
-const footerStatistics = document.querySelector(`.footer__statistics`);
-footerStatistics.querySelector(`p`).textContent = `${movies.length} movies inside`;
-
-const pageController = new PageController(boardComponent, moviesModel);
-pageController.render();
 statisticsComponent.hide();
+
 
 filterController.setOnChange((menuItem) => {
   switch (menuItem) {
@@ -51,3 +45,17 @@ filterController.setOnChange((menuItem) => {
       break;
   }
 });
+
+api.getMovies()
+  .then((movies) => {
+    moviesModel.setMovies(movies);
+    const userLevel = getUserLevel(moviesModel.getMoviesAll());
+
+    render(siteHeaderElement, new UserProfileComponent(userLevel), `beforeend`);
+    pageController.render();
+    filterController.render();
+
+    const footerStatistics = document.querySelector(`.footer__statistics`);
+    footerStatistics.querySelector(`p`).textContent = `${moviesModel.getMoviesAll().length} movies inside`;
+
+  });
