@@ -28,6 +28,7 @@ export default class Api {
   }
 
   updateMovie(id, data) {
+
     return this._load({
       url: `movies/${id}`,
       method: `PUT`,
@@ -36,6 +37,21 @@ export default class Api {
     })
       .then((response) => response.json())
       .then(Movie.parseMovie);
+  }
+
+  createComment(comment, movieId) {
+    return this._load({
+      url: `comgments/${movieId}`,
+      method: `POST`,
+      body: JSON.stringify(comment.toRaw()),
+      headers: new Headers({'Content-Type': `application/json`}),
+    })
+      .then((response) => response.json())
+      .then(Comment.parseComment);
+  }
+
+  deleteComment(id) {
+    return this._load({url: `comments/${id}`, method: `DELETE`});
   }
 
   _load({url, method = `GET`, body = null, headers = new Headers()}) {

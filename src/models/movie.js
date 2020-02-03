@@ -1,7 +1,7 @@
 const DATE_BLANK = new Date(0);
 
 export default class Movie {
-  constructor(data) {console.log(DATE_BLANK)
+  constructor(data) {
     this.id = data[`id`];
     this.comments = data[`comments`].map((it) => {
 
@@ -71,7 +71,6 @@ export default class Movie {
   }
 
   static parseMovies(data) {
-    console.log(data);
     return data.map(Movie.parseMovie);
   }
 
