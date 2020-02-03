@@ -74,13 +74,6 @@ const COUNTRIES = [
   `France`
 ];
 
-const AGE_RATINGS = [
-  `0+`,
-  `12+`,
-  `16+`,
-  `18+`
-];
-
 const COMMENTS = [{
   id: `1`,
   name: `Tim Macoveev`,

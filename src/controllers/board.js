@@ -198,7 +198,7 @@ export default class PageController {
   }
 
   _onDataChange(movieController, oldData, newData) {
-    if (!movieController) {debugger
+    if (!movieController) {
       remove(this._filmsExtraCommentComponent);
       render(this._filmsComponent.getElement(), this._filmsExtraCommentComponent, `beforeend`);
       this._renderExtraCommentMovies();
@@ -206,7 +206,6 @@ export default class PageController {
       this._api.updateMovie(oldData.id, newData)
         .then((movieModel) => {
           if (this._moviesModel.updateMovies(oldData.id, movieModel)) {
-            // movieController.render(movieModel);
             this._updateMovies();
           }
         });

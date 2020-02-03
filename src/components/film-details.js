@@ -1,5 +1,4 @@
 import AbstractSmartComponent from './abstract-smart-component.js';
-import {erase} from '../utils/render.js';
 import moment from 'moment';
 import he from 'he';
 
@@ -8,12 +7,6 @@ const EMOJI = [
   `sleeping`,
   `puke`,
   `angry`
-];
-
-const MARKS = [
-  `watchlist`,
-  `history`,
-  `favorite`
 ];
 
 const createFilmDetailsTemplate = (movie, options = {}) => {
@@ -35,7 +28,7 @@ const createFilmDetailsTemplate = (movie, options = {}) => {
     comments
   } = movie;
 
-  const {isWatchlist, isHistory, isFavorite, addedEmoji} = options;
+  const {isWatchlist, isHistory, isFavorite, addedEmoji, commentDisabled} = options;
 
   const createGenresMarkup = () => {
     return genres.map((genre) => {
@@ -61,7 +54,7 @@ const createFilmDetailsTemplate = (movie, options = {}) => {
 
   const createCommentsMarkup = () => {
     return comments.map((comment) => {
-      const {emoji, text: notSanitizedText, name, time: notFormattedTime} = comment;
+      const {id, emoji, text: notSanitizedText, name, time: notFormattedTime} = comment;
       const text = he.encode(notSanitizedText);
       const time = moment(notFormattedTime).format(`YYYY/MM/DD HH:MM`);
 
@@ -75,7 +68,7 @@ const createFilmDetailsTemplate = (movie, options = {}) => {
           <p class="film-details__comment-info">
             <span class="film-details__comment-author">${name}</span>
             <span class="film-details__comment-day">${time}</span>
-            <button class="film-details__comment-delete">Delete</button>
+            <button class="film-details__comment-delete" data-id="${id}">Delete</button>
           </p>
         </div>
       </li>`
@@ -224,7 +217,7 @@ ${userRating ? `<p class="film-details__user-rating">Your rate ${userRating}</p>
             </div>
 
             <label class="film-details__comment-label">
-              <textarea class="film-details__comment-input" placeholder="Select reaction below and write comment here" name="comment"></textarea>
+               <textarea class="film-details__comment-input" placeholder="Select reaction below and write comment here" name="comment" ${commentDisabled ? `disabled` : ``}></textarea>
             </label>
 
             <div class="film-details__emoji-list">
@@ -247,7 +240,9 @@ export default class FilmDetails extends AbstractSmartComponent {
     this._isHistory = movie.isHistory;
     this._isFavorite = movie.isFavorite;
     this._emoji = ``;
+    this._commentDisabled = false;
 
+    this._deleteBtnChangeHandler = null;
     this._commentInputEnterPressHandler = null;
     this._closeBtnClickHandler = null;
 
@@ -260,6 +255,7 @@ export default class FilmDetails extends AbstractSmartComponent {
       isHistory: this._isHistory,
       isFavorite: this._isFavorite,
       addedEmoji: this._emoji,
+      commentDisabled: this._commentDisabled
     });
   }
 
@@ -269,12 +265,18 @@ export default class FilmDetails extends AbstractSmartComponent {
     return new FormData(form);
   }
 
+  setCommentDisabled() {
+    this._commentDisabled = false;
+    this.rerender();
+  }
+
   setDeleteBtnClickHandler(handler) {
     this.getElement().querySelectorAll(`.film-details__comment-delete`)
-      .forEach((it, i) => it.addEventListener(`click`, (evt) => {
+      .forEach((it) => it.addEventListener(`click`, (evt) => {
         evt.preventDefault();
-        handler(i);
+        handler(it.dataset.id);
       }));
+    this._deleteBtnChangeHandler = handler;
   }
 
   setCommentInputEnterPressHandler(handler) {
@@ -306,7 +308,9 @@ export default class FilmDetails extends AbstractSmartComponent {
 
     if (resetBtn) {
       resetBtn.addEventListener(`click`, () => {
-
+        ratingInput.forEach((it) => {
+          it.checked = false;
+        });
       });
     }
 
@@ -325,6 +329,7 @@ export default class FilmDetails extends AbstractSmartComponent {
         this.rerender();
       });
 
+    this.setDeleteBtnClickHandler(this._deleteBtnChangeHandler);
     this.setCommentInputEnterPressHandler(this._commentInputEnterPressHandler);
     this.setCloseBtnClickHandler(this._closeBtnClickHandler);
 

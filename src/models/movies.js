@@ -29,7 +29,6 @@ export default class MoviesModel {
 
     this._movies[index] = movie;
 
-    //this._dataChangeHandlers.forEach((handler) => handler());
     this._filterChangeHandlers.forEach((handler) => handler());
 
     return true;
@@ -49,13 +48,18 @@ export default class MoviesModel {
 
     this._movies[movieIndex].comments.unshift(comment);
 
-    this._dataChangeHandlers.forEach((handler) => handler());
   }
 
-  removeComment(movieId, commentIndex) {
+  removeComment(movieId, commentId) {
     const movieIndex = this._movies.findIndex((it) => it.id === movieId);
 
     if (movieIndex === -1) {
+      return;
+    }
+
+    const commentIndex = this._movies[movieIndex].comments.indexOf(commentId);
+
+    if (commentIndex === -1) {
       return;
     }
 

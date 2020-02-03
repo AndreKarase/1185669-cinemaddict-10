@@ -9,19 +9,21 @@ export default class Comment {
 
   toRaw() {
     return {
-      'id': this.id,
-      'author': this.name,
-      'comment': this.text,
-      'date': this.time.toISOString,
+      'comment': this.text || ``,
+      'date': this.time.toISOString(),
       'emotion': this.emoji
-    }
+    };
   }
 
   static parseComment(data) {
-    return new Comment(data)
+    return new Comment(data);
   }
 
   static parseComments(data) {
     return data.map(Comment.parseComment);
+  }
+
+  static clone(data) {
+    return new Comment(data.toRaw());
   }
 }
