@@ -30,7 +30,7 @@ const getViewedRating = (movie) => {
   return movie.userRating || movie.rating;
 };
 
-export default class PageController {
+export default class BoardController {
   constructor(container, moviesModel, api) {
     this._api = api;
     this._moviesModel = moviesModel;

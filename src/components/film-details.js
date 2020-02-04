@@ -244,9 +244,9 @@ export default class FilmDetails extends AbstractSmartComponent {
     this._emoji = ``;
     this._commentDisabled = false;
 
-    this._deleteBtnChangeHandler = null;
+    this._deleteButtonChangeHandler = null;
     this._commentInputEnterPressHandler = null;
-    this._closeBtnClickHandler = null;
+    this._closeButtonClickHandler = null;
 
     this._subscribeOnEvents();
   }
@@ -272,49 +272,49 @@ export default class FilmDetails extends AbstractSmartComponent {
     this.rerender();
   }
 
-  setDeleteBtnClickHandler(handler) {
-    this._deleteBtnChangeHandler = handler;
+  setDeleteButtonClickHandler(handler) {
     this.getElement().querySelectorAll(`.film-details__comment-delete`)
       .forEach((button) => button.addEventListener(`click`, (evt) => {
         evt.preventDefault();
-        this._deleteBtnChangeHandler(button.dataset.id);
+        handler(button.dataset.id);
       }));
+    this._deleteButtonChangeHandler = handler;
   }
 
   setCommentInputEnterPressHandler(handler) {
-    this._commentInputEnterPressHandler = handler;
     this.getElement().querySelector(`.film-details__comment-input`)
       .addEventListener(`keydown`, (evt) => {
         if (evt.ctrlKey === true && evt.key === `Enter`) {
-          this._commentInputEnterPressHandler();
+          handler();
         }
       });
+    this._commentInputEnterPressHandler = handler;
   }
 
-  setCloseBtnClickHandler(handler) {
+  setCloseButtonClickHandler(handler) {
     this.getElement().querySelector(`.film-details__close-btn`)
       .addEventListener(`click`, handler);
 
-    this._closeBtnClickHandler = handler;
+    this._closeButtonClickHandler = handler;
   }
 
   recoveryListeners() {
-    this.setDeleteBtnClickHandler(this._deleteBtnChangeHandler);
+    this.setDeleteButtonClickHandler(this._deleteButtonChangeHandler);
     this.setCommentInputEnterPressHandler(this._commentInputEnterPressHandler);
-    this.setCloseBtnClickHandler(this._closeBtnClickHandler);
+    this.setCloseButtonClickHandler(this._closeButtonClickHandler);
     this._subscribeOnEvents();
   }
 
   _subscribeOnEvents() {
     const element = this.getElement();
 
-    const resetBtn = element.querySelector(`.film-details__watched-reset`);
+    const resetButton = element.querySelector(`.film-details__watched-reset`);
     const ratingInput = element.querySelectorAll(`.film-details__user-rating-input`);
 
-    if (resetBtn) {
-      resetBtn.addEventListener(`click`, () => {
-        ratingInput.forEach((radioBtn) => {
-          radioBtn.checked = false;
+    if (resetButton) {
+      resetButton.addEventListener(`click`, () => {
+        ratingInput.forEach((radioButton) => {
+          radioButton.checked = false;
         });
       });
     }
@@ -326,8 +326,8 @@ export default class FilmDetails extends AbstractSmartComponent {
         this._isHistory = element.querySelector(`#watched`).checked;
 
         if (!this._isWatchlist) {
-          ratingInput.forEach((radioBtn) => {
-            radioBtn.checked = false;
+          ratingInput.forEach((radioButton) => {
+            radioButton.checked = false;
           });
         }
 

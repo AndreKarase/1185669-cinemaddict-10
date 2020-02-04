@@ -61,8 +61,8 @@ const renderChart = (ctx, genres) => {
       },
       tooltips: {
         callbacks: {
-          label: (tooltipItem, data) => {
-            const allData = data.datasets[tooltipItem.datasetIndex].data;
+          label: (tooltipItem, columnParameters) => {
+            const allData = columnParameters.datasets[tooltipItem.datasetIndex].data;
             const tooltipData = allData[tooltipItem.index];
             return `${tooltipData} Movies`;
           }

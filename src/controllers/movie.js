@@ -53,14 +53,14 @@ export default class MovieController {
         render(document.body, this._filmDetailsComponent, `beforeend`);
         document.addEventListener(`keydown`, this._onEscPress);
 
-        this._filmDetailsComponent.setCloseBtnClickHandler(() => {
+        this._filmDetailsComponent.setCloseButtonClickHandler(() => {
           const formData = this._filmDetailsComponent.getData();
           const controlsData = parseFormData(formData);
 
-          const ratingBtns = this._filmDetailsComponent.getElement().querySelectorAll(`.film-details__user-rating-input`);
-          if (ratingBtns.length !== 0) {
-            ratingBtns.forEach((btn) => {
-              btn.disabled = true;
+          const ratingButtons = this._filmDetailsComponent.getElement().querySelectorAll(`.film-details__user-rating-input`);
+          if (ratingButtons.length !== 0) {
+            ratingButtons.forEach((button) => {
+              button.disabled = true;
             });
           }
 
@@ -74,7 +74,7 @@ export default class MovieController {
           this._onDataChange(this, movie, newMovie);
         });
 
-        this._filmDetailsComponent.setDeleteBtnClickHandler((id) => {
+        this._filmDetailsComponent.setDeleteButtonClickHandler((id) => {
           this._onCommentDataChange(movie, id, null);
         });
 
@@ -110,14 +110,14 @@ export default class MovieController {
 
     this._filmCardComponent.setCommentsClickHandler(() => this.openPopup(movie));
 
-    this._filmCardComponent.setAddToWatchlistBtnClickHandler(() => {
+    this._filmCardComponent.setAddToWatchlistButtonClickHandler(() => {
       const newMovie = MovieModel.clone(movie);
       newMovie.isWatchlist = !newMovie.isWatchlist;
 
       this._onDataChange(this, movie, newMovie);
     });
 
-    this._filmCardComponent.setMarkAsWathedBtnClickHandler(() => {
+    this._filmCardComponent.setMarkAsWathedButtonClickHandler(() => {
       const newMovie = MovieModel.clone(movie);
       newMovie.isHistory = !newMovie.isHistory;
 
@@ -127,7 +127,7 @@ export default class MovieController {
       this._onDataChange(this, movie, newMovie);
     });
 
-    this._filmCardComponent.setFavoriteBtnClickHandler(() => {
+    this._filmCardComponent.setFavoriteButtonClickHandler(() => {
       const newMovie = MovieModel.clone(movie);
       newMovie.isFavorite = !newMovie.isFavorite;
 

@@ -4,7 +4,7 @@ import StatisticsComponent from './components/statistics.js';
 import UserProfileComponent from './components/user-profile.js';
 import {getUserLevel} from './utils/profile.js';
 import {render} from './utils/render.js';
-import PageController from './controllers/board.js';
+import BoardController from './controllers/board.js';
 import MoviesModel from './models/movies.js';
 import FilterController from './controllers/filter.js';
 
@@ -21,7 +21,7 @@ const siteMainElement = document.querySelector(`.main`);
 const statisticsComponent = new StatisticsComponent(moviesModel);
 
 const boardComponent = new BoardComponent();
-const pageController = new PageController(boardComponent, moviesModel, api);
+const pageController = new BoardController(boardComponent, moviesModel, api);
 const filterController = new FilterController(siteMainElement, moviesModel);
 
 filterController.render();

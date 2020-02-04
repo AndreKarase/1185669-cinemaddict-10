@@ -3,12 +3,12 @@ import AbstractComponent from './abstract-component.js';
 const DESCRIPTION_MAX = 140;
 
 const createFilmCardTemplate = (movie) => {
-  const {title, poster, description: notCroppeddescription, rating, userRating, runtime, genres, comments, isFavorite, isHistory, isWatchlist} = movie;
+  const {title, poster, description: notCroppedDescription, rating, userRating, runtime, genres, comments, isFavorite, isHistory, isWatchlist} = movie;
   const year = movie.releaseDate.getFullYear();
   const formatedRuntime = `${Math.floor(runtime / 60)}h ${runtime % 60}m`;
-  const description = notCroppeddescription.length > DESCRIPTION_MAX ?
-    notCroppeddescription.substr(0, DESCRIPTION_MAX - 1) + `…` :
-    notCroppeddescription;
+  const description = notCroppedDescription.length > DESCRIPTION_MAX ?
+    notCroppedDescription.substr(0, DESCRIPTION_MAX - 1) + `…` :
+    notCroppedDescription;
 
 
   return (
@@ -57,21 +57,30 @@ export default class FilmCard extends AbstractComponent {
       .addEventListener(`click`, handler);
   }
 
-  setAddToWatchlistBtnClickHandler(handler) {
+  setAddToWatchlistButtonClickHandler(handler) {
     this.getElement()
       .querySelector(`.film-card__controls-item--add-to-watchlist`)
-      .addEventListener(`click`, handler);
+      .addEventListener(`click`, (evt) => {
+        evt.preventDefault();
+        handler();
+      });
   }
 
-  setMarkAsWathedBtnClickHandler(handler) {
+  setMarkAsWathedButtonClickHandler(handler) {
     this.getElement()
       .querySelector(`.film-card__controls-item--mark-as-watched`)
-      .addEventListener(`click`, handler);
+      .addEventListener(`click`, (evt) => {
+        evt.preventDefault();
+        handler();
+      });
   }
 
-  setFavoriteBtnClickHandler(handler) {
+  setFavoriteButtonClickHandler(handler) {
     this.getElement()
       .querySelector(`.film-card__controls-item--favorite`)
-      .addEventListener(`click`, handler);
+      .addEventListener(`click`, (evt) => {
+        evt.preventDefault();
+        handler();
+      });
   }
 }

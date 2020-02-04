@@ -30,6 +30,7 @@ export default class MoviesModel {
     this._movies[index] = movie;
 
     this._filterChangeHandlers.forEach((handler) => handler());
+    this._dataChangeHandlers.forEach((handler) => handler());
 
     return true;
   }
