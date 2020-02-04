@@ -27,12 +27,12 @@ export default class Api {
       .then(Comment.parseComments);
   }
 
-  updateMovie(id, data) {
+  updateMovie(id, movie) {
 
     return this._load({
       url: `movies/${id}`,
       method: `PUT`,
-      body: JSON.stringify(data.toRaw()),
+      body: JSON.stringify(movie.toRaw()),
       headers: new Headers({'Content-Type': `application/json`})
     })
       .then((response) => response.json())
@@ -41,7 +41,7 @@ export default class Api {
 
   createComment(comment, movieId) {
     return this._load({
-      url: `comgments/${movieId}`,
+      url: `comments/${movieId}`,
       method: `POST`,
       body: JSON.stringify(comment.toRaw()),
       headers: new Headers({'Content-Type': `application/json`}),

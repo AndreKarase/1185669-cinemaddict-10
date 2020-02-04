@@ -9,6 +9,8 @@ const EMOJI = [
   `angry`
 ];
 
+const EMOJI_SIZE = 55;
+
 const createFilmDetailsTemplate = (movie, options = {}) => {
   const {
     poster,
@@ -17,7 +19,7 @@ const createFilmDetailsTemplate = (movie, options = {}) => {
     rating,
     userRating,
     director,
-    writers: writersArr,
+    writers: unJoinedWriters,
     cast: castArr,
     releaseDate,
     runtime,
@@ -79,7 +81,7 @@ const createFilmDetailsTemplate = (movie, options = {}) => {
   const createRatingScoreMarkup = () => {
 
     return new Array(9).fill(``)
-      .map((it, i) => {
+      .map((item, i) => {
 
         return (
           `<input type="radio" name="score" class="film-details__user-rating-input visually-hidden" value="${i + 1}" id="rating-${i + 1}" ${i + 1 === userRating ? `checked` : ``}>
@@ -91,7 +93,7 @@ const createFilmDetailsTemplate = (movie, options = {}) => {
   const releaseDateFormated = moment(releaseDate).format(`DD MMMM YYYY`);
   const genresKey = genres.length > 1 ? `Genres` : `Genre`;
   const formatedRuntime = `${Math.floor(runtime / 60)}h ${runtime % 60}m`;
-  const writers = writersArr.join(`, `);
+  const writers = unJoinedWriters.join(`, `);
   const cast = castArr.join(`, `);
 
   const ratingScoreMarkup = createRatingScoreMarkup();
@@ -271,22 +273,22 @@ export default class FilmDetails extends AbstractSmartComponent {
   }
 
   setDeleteBtnClickHandler(handler) {
-    this.getElement().querySelectorAll(`.film-details__comment-delete`)
-      .forEach((it) => it.addEventListener(`click`, (evt) => {
-        evt.preventDefault();
-        handler(it.dataset.id);
-      }));
     this._deleteBtnChangeHandler = handler;
+    this.getElement().querySelectorAll(`.film-details__comment-delete`)
+      .forEach((button) => button.addEventListener(`click`, (evt) => {
+        evt.preventDefault();
+        this._deleteBtnChangeHandler(button.dataset.id);
+      }));
   }
 
   setCommentInputEnterPressHandler(handler) {
+    this._commentInputEnterPressHandler = handler;
     this.getElement().querySelector(`.film-details__comment-input`)
       .addEventListener(`keydown`, (evt) => {
         if (evt.ctrlKey === true && evt.key === `Enter`) {
-          handler();
+          this._commentInputEnterPressHandler();
         }
       });
-    this._commentInputEnterPressHandler = handler;
   }
 
   setCloseBtnClickHandler(handler) {
@@ -297,6 +299,9 @@ export default class FilmDetails extends AbstractSmartComponent {
   }
 
   recoveryListeners() {
+    this.setDeleteBtnClickHandler(this._deleteBtnChangeHandler);
+    this.setCommentInputEnterPressHandler(this._commentInputEnterPressHandler);
+    this.setCloseBtnClickHandler(this._closeBtnClickHandler);
     this._subscribeOnEvents();
   }
 
@@ -308,8 +313,8 @@ export default class FilmDetails extends AbstractSmartComponent {
 
     if (resetBtn) {
       resetBtn.addEventListener(`click`, () => {
-        ratingInput.forEach((it) => {
-          it.checked = false;
+        ratingInput.forEach((radioBtn) => {
+          radioBtn.checked = false;
         });
       });
     }
@@ -321,18 +326,15 @@ export default class FilmDetails extends AbstractSmartComponent {
         this._isHistory = element.querySelector(`#watched`).checked;
 
         if (!this._isWatchlist) {
-          ratingInput.forEach((it) => {
-            it.checked = false;
+          ratingInput.forEach((radioBtn) => {
+            radioBtn.checked = false;
           });
         }
 
         this.rerender();
       });
 
-    this.setDeleteBtnClickHandler(this._deleteBtnChangeHandler);
-    this.setCommentInputEnterPressHandler(this._commentInputEnterPressHandler);
-    this.setCloseBtnClickHandler(this._closeBtnClickHandler);
-
+    const emojiContainer = element.querySelector(`.film-details__add-emoji-label`);
     element.querySelector(`.film-details__emoji-list`)
       .addEventListener(`click`, (evt) => {
         if (evt.target.tagName === `IMG` ||
@@ -340,7 +342,19 @@ export default class FilmDetails extends AbstractSmartComponent {
           this._emoji = evt.target.src || evt.target.querySelector(`img`).src;
         }
 
-        this.rerender();
+        if (evt.target.tagName !== `IMG`) {
+          return;
+        }
+
+        if (emojiContainer.firstElementChild) {
+          emojiContainer.firstElementChild.src = this._emoji;
+        } else {
+          const emojiElement = document.createElement(`img`);
+          emojiElement.src = this._emoji;
+          emojiElement.width = EMOJI_SIZE;
+          emojiElement.height = EMOJI_SIZE;
+          emojiContainer.append(emojiElement);
+        }
       });
   }
 }

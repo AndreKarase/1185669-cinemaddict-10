@@ -21,7 +21,7 @@ export default class MoviesModel {
   }
 
   updateMovies(id, movie) {
-    const index = this._movies.findIndex((it) => it.id === id);
+    const index = this._movies.findIndex((currentMovie) => currentMovie.id === id);
 
     if (index === -1) {
       return false;
@@ -40,7 +40,7 @@ export default class MoviesModel {
   }
 
   addComment(movieId, comment) {
-    const movieIndex = this._movies.findIndex((it) => it.id === movieId);
+    const movieIndex = this._movies.findIndex((movie) => movie.id === movieId);
 
     if (movieIndex === -1) {
       return;
@@ -51,7 +51,7 @@ export default class MoviesModel {
   }
 
   removeComment(movieId, commentId) {
-    const movieIndex = this._movies.findIndex((it) => it.id === movieId);
+    const movieIndex = this._movies.findIndex((movie) => movie.id === movieId);
 
     if (movieIndex === -1) {
       return;

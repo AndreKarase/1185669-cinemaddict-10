@@ -9,11 +9,11 @@ const getUniqItems = (item, index, array) => {
 };
 
 const getTargetMoviesCount = (movies, genre) => {
-  const result = movies.reduce((acc, movie) => {
+  const result = movies.reduce((count, movie) => {
     const targetMoviesCount = Array.from(movie.genres)
-      .filter((it) => it === genre).length;
+      .filter((movieGenre) => movieGenre === genre).length;
 
-    return acc + targetMoviesCount;
+    return count + targetMoviesCount;
   }, 0);
 
   return result;
@@ -21,8 +21,8 @@ const getTargetMoviesCount = (movies, genre) => {
 
 const getGenres = (movies) => {
   const genresLabels = movies.map((movie) => movie.genres)
-    .reduce((acc, genres) => {
-      return acc.concat(Array.from(genres));
+    .reduce((allGenres, genres) => {
+      return allGenres.concat(Array.from(genres));
     }, [])
     .filter(getUniqItems);
 
@@ -42,12 +42,12 @@ const renderChart = (ctx, genres) => {
     plugins: [ChartDataLabels],
     type: `horizontalBar`,
     data: {
-      labels: genres.reduce((acc, genre) => {
-        return acc.concat(genre.label);
+      labels: genres.reduce((labels, genre) => {
+        return labels.concat(genre.label);
       }, []),
       datasets: [{
-        data: genres.reduce((acc, genre) => {
-          return acc.concat(genre.count);
+        data: genres.reduce((counts, genre) => {
+          return counts.concat(genre.count);
         }, []),
         backgroundColor: genres.map(() => `rgba(255, 255, 0, 1)`),
         barPercentage: genres.map(() => 0.5)
@@ -105,8 +105,8 @@ const renderChart = (ctx, genres) => {
 const createStatisticsTemplate = (movies, genres, activeFilter, userLevel) => {
 
   const moviesCount = movies.length;
-  const runtimesCount = movies.reduce((acc, movie) => {
-    return acc + movie.runtime;
+  const runtimesCount = movies.reduce((count, movie) => {
+    return count + movie.runtime;
   }, 0);
   const hoursCount = Math.floor(runtimesCount / 60);
   const minutesCount = runtimesCount % 60;
@@ -190,11 +190,11 @@ export default class Statistics extends AbstractSmartComponent {
     this._moviesModel = moviesModel;
     this._userLevel = getUserLevel(this._moviesModel.getMoviesAll());
     this._watchedMovies = this._startDate ?
-      this._moviesModel.getMovies()
+      this._moviesModel.getMoviesAll()
         .filter((movie) => {
           return movie.isHistory && movie.watchingDate > this._startDate;
         }) :
-      this._moviesModel.getMovies()
+      this._moviesModel.getMoviesAll()
         .filter((movie) => movie.isHistory);
 
     this._genres = getGenres(this._watchedMovies);

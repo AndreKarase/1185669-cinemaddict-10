@@ -1,10 +1,10 @@
 export default class Comment {
-  constructor(data) {
-    this.id = data[`id`];
-    this.name = data[`author`];
-    this.text = data[`comment`];
-    this.time = new Date(data[`date`]);
-    this.emoji = data[`emotion`];
+  constructor(comment) {
+    this.id = comment[`id`] || null;
+    this.name = comment[`author`] || null;
+    this.text = comment[`comment`];
+    this.time = new Date(comment[`date`]);
+    this.emoji = comment[`emotion`];
   }
 
   toRaw() {
@@ -15,15 +15,11 @@ export default class Comment {
     };
   }
 
-  static parseComment(data) {
-    return new Comment(data);
+  static parseComment(comment) {
+    return new Comment(comment);
   }
 
-  static parseComments(data) {
-    return data.map(Comment.parseComment);
-  }
-
-  static clone(data) {
-    return new Comment(data.toRaw());
+  static parseComments(comment) {
+    return comment.map(Comment.parseComment);
   }
 }

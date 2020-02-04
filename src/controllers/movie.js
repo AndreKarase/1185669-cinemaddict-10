@@ -3,7 +3,6 @@ import FilmDetailsComponent from '../components/film-details.js';
 import MovieModel from '../models/movie.js';
 import CommentModel from '../models/comment.js';
 import {render, replace, erase, remove} from '../utils/render.js';
-import moment from 'moment';
 
 const Mode = {
   DEFAULT: `default`,
@@ -22,10 +21,9 @@ const parseFormData = (formData) => {
 };
 
 const parseCommentFormData = (formData) => {
-
   return new CommentModel({
     'comment': formData.get(`comment`),
-    'date': moment(Date.now()).format(`YYYY/MM/DD HH:MM`),
+    'date': new Date(Date.now()),
     'emotion': formData.get(`comment-emoji`)
   });
 };
@@ -57,7 +55,7 @@ export default class MovieController {
 
         this._filmDetailsComponent.setCloseBtnClickHandler(() => {
           const formData = this._filmDetailsComponent.getData();
-          const data = parseFormData(formData);
+          const controlsData = parseFormData(formData);
 
           const ratingBtns = this._filmDetailsComponent.getElement().querySelectorAll(`.film-details__user-rating-input`);
           if (ratingBtns.length !== 0) {
@@ -67,10 +65,11 @@ export default class MovieController {
           }
 
           const newMovie = MovieModel.clone(movie);
-          newMovie.isHistory = data.isHistory;
-          newMovie.isWatchlist = data.isWatchlist;
-          newMovie.isFavorite = data.isFavorite;
-          newMovie.userRating = +data.userRating || null;
+          newMovie.isHistory = controlsData.isHistory;
+          newMovie.isWatchlist = controlsData.isWatchlist;
+          newMovie.watchingDate = new Date(Date.now());
+          newMovie.isFavorite = controlsData.isFavorite;
+          newMovie.userRating = +controlsData.userRating || null;
 
           this._onDataChange(this, movie, newMovie);
         });
@@ -121,6 +120,8 @@ export default class MovieController {
     this._filmCardComponent.setMarkAsWathedBtnClickHandler(() => {
       const newMovie = MovieModel.clone(movie);
       newMovie.isHistory = !newMovie.isHistory;
+
+      newMovie.watchingDate = new Date(Date.now());
       newMovie.userRating = null;
 
       this._onDataChange(this, movie, newMovie);
